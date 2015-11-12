@@ -81,38 +81,42 @@ Before you declare your first route like this:
 
 You should include the package and define some macros
 
-    # incude pyramid_route_7 and define our routes/macros
-    config.include("pyramid_route_7")
-    config.add_route_7_kvpattern('page', '\d+')
+    + # incude pyramid_route_7 and define our routes/macros
+    + config.include("pyramid_route_7")
+    + config.add_route_7_kvpattern('page', '\d+')
 
-    # okay, go!
-    config.add_route("main", "/")
-    config.add_route("foo", "/foo")
-    config.add_route("foo_paginated", "/foo/{page:\d+}")
+      # okay, go!
+      config.add_route("main", "/")
+      config.add_route("foo", "/foo")
+      config.add_route("foo_paginated", "/foo/{page:\d+}")
 
 ### Step 2 - Just use find & replace in a couple of passes
 
 First, replace `config.add_route` with `config.add_route_7`:
 
-    # incude pyramid_route_7 and define our routes/macros
-    config.include("pyramid_route_7")
-    config.add_route_7_kvpattern('page', '\d+')
+      # incude pyramid_route_7 and define our routes/macros
+      config.include("pyramid_route_7")
+      config.add_route_7_kvpattern('page', '\d+')
 
-    # okay, go!
-    config.add_route_7("main", "/")
-    config.add_route_7("foo", "/foo")
-    config.add_route_7("foo_paginated", "/foo/{page:\d+}")
+      # okay, go!
+    - config.add_route("main", "/")
+    + config.add_route_7("main", "/")
+    - config.add_route("foo", "/foo")
+    + config.add_route_7("foo", "/foo")
+    - config.add_route("foo_paginated", "/foo/{page:\d+}")
+    + config.add_route_7("foo_paginated", "/foo/{page:\d+}")
 
 Then find/replace your macros:
 
-    # incude pyramid_route_7 and define our routes/macros
-    config.include("pyramid_route_7")
-    config.add_route_7_kvpattern('page', '\d+')
+      # incude pyramid_route_7 and define our routes/macros
+      config.include("pyramid_route_7")
+      config.add_route_7_kvpattern('page', '\d+')
 
-    # okay, go!
-    config.add_route_7("main", "/")
-    config.add_route_7("foo", "/foo")
-    config.add_route_7("foo_paginated", "/foo/{@page}")
+      # okay, go!
+      config.add_route_7("main", "/")
+      config.add_route_7("foo", "/foo")
+    - config.add_route_7("foo_paginated", "/foo/{page:\d+}")
+    + config.add_route_7("foo_paginated", "/foo/{@page}")
 
 Because `add_route_7` simply expands registered macros and passes the result to Pyramid's own `add_route`,
 you can just run it on every declared route.  The performance hit is only at startup
