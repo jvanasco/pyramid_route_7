@@ -1,8 +1,8 @@
 # Route 7
 
-`Route 7` extends pyramid's routing to have provide a macro syntax that can be easier to maintain on larger proejcts.
+`Route 7` extends pyramid's routing to have provide a macro syntax that can be easier to maintain on larger projects.
 
-It works through a ridiculously simple mechanism -- when calling `add_route_7` instead of `add_route`, the package exapnds the macros in the route declaration, then immediately calls pyramid's own `add_route`.
+It works through a ridiculously simple mechanism -- when calling `add_route_7` instead of `add_route`, the package expands the macros in the route declaration, then immediately calls pyramid's own `add_route`.
 
 # Usage
 
@@ -56,10 +56,64 @@ while the syntax for a route is
 
 In larger applications (dozens of routes), it's not uncommon to see lots of patterns re-used.
 
-This package was designed to consolidate the patterns so they can be centrally managed and upgraded over time.
+This package was designed to consolidate the patterns in one place so they can be centrally managed and upgraded over time.
 
 
 ## Q: Why the name "route_7"?
 A: Two reasons:
 * It makes it trivial to implement on existing projects by replacing `add_route` with `add_route_7`, and vice-versa
-* "The Lurid Traversal of Route 7", by Hoover, might just be the best album on Dischord records. (http://www.dischord.com/release/089/lurid-traversal-of-rte-7)
+* "The Lurid Traversal of Route 7" by Hoover, might... just might... be the best album on Dischord records. (http://www.dischord.com/release/089/lurid-traversal-of-rte-7)
+
+
+## Q: Any integration tips?
+
+By default the package will emit logging activity on how it upgrades routes (expands macros) to the default logger.  If you have any troubles, that will help!
+
+A very fast way to integrate routes is just using find & replace.
+
+### Step 1 - Define Macros
+
+Before you declare your first route like this:
+
+    config.add_route("main", "/")
+    config.add_route("foo", "/foo")
+    config.add_route("foo_paginated", "/foo/{page:\d+}")
+
+You should include the package and define some macros
+
+    # incude pyramid_route_7 and define our routes/macros
+    config.include("pyramid_route_7")
+    config.add_route_7_kvpattern('page', '\d+')
+
+    # okay, go!
+    config.add_route("main", "/")
+    config.add_route("foo", "/foo")
+    config.add_route("foo_paginated", "/foo/{page:\d+}")
+
+### Step 2 - Just use find & replace in a couple of passes
+
+First, replace `config.add_route` with `config.add_route_7`:
+
+    # incude pyramid_route_7 and define our routes/macros
+    config.include("pyramid_route_7")
+    config.add_route_7_kvpattern('page', '\d+')
+
+    # okay, go!
+    config.add_route_7("main", "/")
+    config.add_route_7("foo", "/foo")
+    config.add_route_7("foo_paginated", "/foo/{page:\d+}")
+
+Then find/replace your macros:
+
+    # incude pyramid_route_7 and define our routes/macros
+    config.include("pyramid_route_7")
+    config.add_route_7_kvpattern('page', '\d+')
+
+    # okay, go!
+    config.add_route_7("main", "/")
+    config.add_route_7("foo", "/foo")
+    config.add_route_7("foo_paginated", "/foo/{@page}")
+
+Because `add_route_7` simply expands registered macros and passes the result to Pyramid's own `add_route`,
+you can just run it on every declared route.  The performance hit is only at startup
+and is incredibly minimal (it's really just a regex).
