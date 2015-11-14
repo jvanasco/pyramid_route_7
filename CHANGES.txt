@@ -1,6 +1,9 @@
+v0.0.3
+    Packaging fix
+
 v0.0.2
     Documentation fixes
-    Packaging fix.
+    Packaging fix
 
 v0.0.1
     Initial release
