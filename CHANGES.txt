@@ -1,5 +1,6 @@
-v0.0.2 (unreleased)
+v0.0.2
     Documentation fixes
+    Packaging fix.
 
 v0.0.1
     Initial release

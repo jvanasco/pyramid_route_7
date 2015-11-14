@@ -5,9 +5,12 @@ import os
 from setuptools import setup
 from setuptools import find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, "README.md")).read()
-README = README.split("\n\n", 1)[0] + "\n"
+try:
+    here = os.path.abspath(os.path.dirname(__file__))
+    README = open(os.path.join(here, "README.md")).read()
+    README = README.split("\n\n", 1)[0] + "\n"
+except:
+    README = ''
 
 requires = [
     "pyramid",
@@ -15,7 +18,7 @@ requires = [
 
 setup(
     name="pyramid_route_7",
-    version="0.0.1",
+    version="0.0.2",
     description="extensions to pyramid routing",
     long_description=README,
     classifiers=[
