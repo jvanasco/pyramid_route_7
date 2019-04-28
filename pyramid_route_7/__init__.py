@@ -4,6 +4,7 @@ log = logging.getLogger(__name__)
 from pyramid.exceptions import ConfigurationError
 
 import re
+__VERSION__ = '0.2.0'
 
 
 # ==============================================================================
