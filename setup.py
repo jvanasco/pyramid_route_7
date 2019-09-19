@@ -11,21 +11,15 @@ try:
     README = open(os.path.join(here, "README.md")).read()
     README = README.split("\n\n", 1)[0] + "\n"
 except:
-    README = ''
+    README = ""
 
 # store version in the init.py
-with open(os.path.join(os.path.dirname(__file__),
-                       'pyramid_route_7',
-                       '__init__.py'
-                       )
-          ) as v_file:
-    VERSION = re.compile(
-        r".*__VERSION__ = '(.*?)'",
-        re.S).match(v_file.read()).group(1)
+with open(
+    os.path.join(os.path.dirname(__file__), "pyramid_route_7", "__init__.py")
+) as v_file:
+    VERSION = re.compile(r".*__VERSION__ = '(.*?)'", re.S).match(v_file.read()).group(1)
 
-requires = [
-    "pyramid",
-]
+requires = ["pyramid"]
 
 setup(
     name="pyramid_route_7",

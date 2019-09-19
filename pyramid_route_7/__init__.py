@@ -1,27 +1,25 @@
 import logging
+
 log = logging.getLogger(__name__)
 
 from pyramid.exceptions import ConfigurationError
 
 import re
-__VERSION__ = '0.2.0'
+
+__VERSION__ = "0.2.1dev"
 
 
 # ==============================================================================
 
 
-REGEX_route_pattern = re.compile('\{(([\w]+)\|([\w]+))\}', re.I)
-REGEX_route_kvpattern = re.compile('\{(\@([\w]+))\}', re.I)
+REGEX_route_pattern = re.compile("\{(([\w]+)\|([\w]+))\}", re.I)
+REGEX_route_kvpattern = re.compile("\{(\@([\w]+))\}", re.I)
 
 
 # ==============================================================================
 
 
-def add_route_7_kvpattern(
-    config,
-    pattern_key,
-    pattern_regex
-):
+def add_route_7_kvpattern(config, pattern_key, pattern_regex):
     """registers a kvpattern with the configurator.
         a kvpattern is a shortcut pattern for both keys and values.
 
@@ -48,16 +46,12 @@ def add_route_7_kvpattern(
             config.add_route('user_profile-subfolder1', '/path/to/user/{@user_id}/subfolder-one')
             config.add_route('user_profile-subfolder2', '/path/to/user/{@user_id}/subfolder-two')
     """
-    if pattern_key in config.registry.route_7['kvpattern']:
-        raise ConfigurationError('`pattern_key` exists')
-    config.registry.route_7['kvpattern'][pattern_key] = pattern_regex
+    if pattern_key in config.registry.route_7["kvpattern"]:
+        raise ConfigurationError("`pattern_key` exists")
+    config.registry.route_7["kvpattern"][pattern_key] = pattern_regex
 
 
-def add_route_7_pattern(
-    config,
-    pattern_name,
-    pattern_regex
-):
+def add_route_7_pattern(config, pattern_name, pattern_regex):
     """registers a pattern with the configurator.
         a pattern is a shortcut pattern for ONLY the values.
         it must be invoked with a key
@@ -73,17 +67,12 @@ def add_route_7_pattern(
         this will result in route_seven generating the following route:
             config.add_route('ymd',  /{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}')
     """
-    if pattern_name in config.registry.route_7['pattern']:
-        raise ConfigurationError('`pattern_name` exists')
-    config.registry.route_7['pattern'][pattern_name] = pattern_regex
+    if pattern_name in config.registry.route_7["pattern"]:
+        raise ConfigurationError("`pattern_name` exists")
+    config.registry.route_7["pattern"][pattern_name] = pattern_regex
 
 
-def add_route_7(
-    config,
-    name,
-    pattern=None,
-    **kwargs
-):
+def add_route_7(config, name, pattern=None, **kwargs):
     """Configuration directive that can be used to register a route
         route_seven allows for a microsyntax in the route declarations.
         after the route declarations are expanded, they are passed onto `add_route`
@@ -96,23 +85,23 @@ def add_route_7(
             # set dedupes
             _route_patterns = set(REGEX_route_pattern.findall(pattern))
             _route_kvpatterns = set(REGEX_route_kvpattern.findall(pattern))
-            if (_route_patterns or _route_kvpatterns):
+            if _route_patterns or _route_kvpatterns:
                 log.debug("processing %s", pattern)
 
             for (_macro, _key, _p_name) in _route_patterns:
-                if _p_name not in config.registry.route_7['pattern']:
-                    raise ConfigurationError('missing pattern `%s`' % _p_name)
-                _p_value = config.registry.route_7['pattern'][_p_name]
+                if _p_name not in config.registry.route_7["pattern"]:
+                    raise ConfigurationError("missing pattern `%s`" % _p_name)
+                _p_value = config.registry.route_7["pattern"][_p_name]
                 _pattern_latest = pattern  # stash for logging
-                pattern = pattern.replace(_macro, '%s:%s' % (_key, _p_value))
+                pattern = pattern.replace(_macro, "%s:%s" % (_key, _p_value))
                 log.debug("  updating %s > %s", _pattern_latest, pattern)  # updating
 
             for (_macro, _p_name) in _route_kvpatterns:
-                if _p_name not in config.registry.route_7['kvpattern']:
-                    raise ConfigurationError('missing kvpattern `%s`' % _p_name)
-                _p_value = config.registry.route_7['kvpattern'][_p_name]
+                if _p_name not in config.registry.route_7["kvpattern"]:
+                    raise ConfigurationError("missing kvpattern `%s`" % _p_name)
+                _p_value = config.registry.route_7["kvpattern"][_p_name]
                 _pattern_latest = pattern  # stash for logging
-                pattern = pattern.replace(_macro, '%s:%s' % (_p_name, _p_value))
+                pattern = pattern.replace(_macro, "%s:%s" % (_p_name, _p_value))
                 log.debug("  updating %s > %s", _pattern_latest, pattern)  # updating
 
             if _pattern_og != pattern:
@@ -124,9 +113,7 @@ def add_route_7(
 
 def includeme(config):
     """Function that gets called when client code calls config.include"""
-    config.add_directive('add_route_7', add_route_7)
-    config.add_directive('add_route_7_pattern', add_route_7_pattern)
-    config.add_directive('add_route_7_kvpattern', add_route_7_kvpattern)
-    config.registry.route_7 = {'pattern': {},
-                               'kvpattern': {},
-                               }
+    config.add_directive("add_route_7", add_route_7)
+    config.add_directive("add_route_7_pattern", add_route_7_pattern)
+    config.add_directive("add_route_7_kvpattern", add_route_7_kvpattern)
+    config.registry.route_7 = {"pattern": {}, "kvpattern": {}}
