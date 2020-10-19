@@ -18,6 +18,7 @@ with open(
 requires = ["pyramid"]
 tests_require = [
     "pytest",
+    "webtest",
 ]
 testing_extras = tests_require + []
 
