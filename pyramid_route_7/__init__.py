@@ -6,21 +6,22 @@ from pyramid.exceptions import ConfigurationError
 
 import re
 
-__VERSION__ = "0.2.1dev"
+__VERSION__ = "0.3.0"
 
 
 # ==============================================================================
 
 
-REGEX_route_pattern = re.compile("\{(([\w]+)\|([\w]+))\}", re.I)
-REGEX_route_kvpattern = re.compile("\{(\@([\w]+))\}", re.I)
+REGEX_route_pattern = re.compile(r"\{(([\w]+)\|([\w]+))\}", re.I)
+REGEX_route_kvpattern = re.compile(r"\{(\@([\w]+))\}", re.I)
 
 
 # ==============================================================================
 
 
 def add_route_7_kvpattern(config, pattern_key, pattern_regex):
-    """registers a kvpattern with the configurator.
+    """
+    registers a kvpattern with the configurator.
     a kvpattern is a shortcut pattern for both keys and values.
 
     it is invoked as such:
@@ -30,7 +31,7 @@ def add_route_7_kvpattern(config, pattern_key, pattern_regex):
         config.add_route_7_kvpattern('day', '\d\d')
         config.add_route('ymd', '/{@year}/{@month}/{@day}')
 
-    this will result in route_seven generating the following route:
+    this will result in route_7 generating the following route:
         config.add_route('ymd',  /{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}')
 
     it is very useful for matchdicts that you constantly recycle
@@ -52,7 +53,8 @@ def add_route_7_kvpattern(config, pattern_key, pattern_regex):
 
 
 def add_route_7_pattern(config, pattern_name, pattern_regex):
-    """registers a pattern with the configurator.
+    """
+    registers a pattern with the configurator.
     a pattern is a shortcut pattern for ONLY the values.
     it must be invoked with a key
     it is invoked as such:
@@ -64,7 +66,7 @@ def add_route_7_pattern(config, pattern_name, pattern_regex):
     note that they syntax for expanding a route_pattern is
         key [pipe] pattern
 
-    this will result in route_seven generating the following route:
+    this will result in route_7 generating the following route:
         config.add_route('ymd',  /{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}')
     """
     if pattern_name in config.registry.route_7["pattern"]:
@@ -73,8 +75,9 @@ def add_route_7_pattern(config, pattern_name, pattern_regex):
 
 
 def add_route_7(config, name, pattern=None, **kwargs):
-    """Configuration directive that can be used to register a route
-    route_seven allows for a microsyntax in the route declarations.
+    """
+    Configuration directive that can be used to register a route
+    route_7 allows for a microsyntax in the route declarations.
     after the route declarations are expanded, they are passed onto `add_route`
     """
     try:

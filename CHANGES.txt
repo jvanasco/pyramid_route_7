@@ -2,6 +2,7 @@ v0.2.1
 	black
 	* upgraded black; 20.8b1
 	* integrated with pre-commit
+	* migrated the local testapp into github for automated tests
 
 v0.2.0
 	python3 official support
