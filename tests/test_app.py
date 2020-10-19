@@ -39,8 +39,8 @@ class PyramidTestApp(unittest.TestCase):
         self.assertEqual(res.json["matchdict"]["month"], "02")
 
     def test_ymd_kvpattern_bad(self):
-        res = self.testapp.get("ymd-kvpattern/2000/021/20", status=404)
-        res = self.testapp.get("ymd-kvpattern/2000/aa/20", status=404)
+        res = self.testapp.get("/ymd-kvpattern/2000/021/20", status=404)
+        res = self.testapp.get("/ymd-kvpattern/2000/aa/20", status=404)
 
     def test_ymd_pattern_good(self):
         res = self.testapp.get("/ymd-pattern/2000/02/20", status=200)
@@ -50,8 +50,8 @@ class PyramidTestApp(unittest.TestCase):
         self.assertEqual(res.json["matchdict"]["month"], "02")
 
     def test_ymd_pattern_bad(self):
-        res = self.testapp.get("ymd-pattern/2000/021/20", status=404)
-        res = self.testapp.get("ymd-pattern/2000/aa/20", status=404)
+        res = self.testapp.get("/ymd-pattern/2000/021/20", status=404)
+        res = self.testapp.get("/ymd-pattern/2000/aa/20", status=404)
 
     def test_user_profile_good(self):
         res = self.testapp.get("/path/to/user/123", status=200)

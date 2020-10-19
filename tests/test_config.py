@@ -18,12 +18,12 @@ class TestConfig(unittest.TestCase):
     def setUp(self):
         self.config = config = testing.setUp()
         config.include("pyramid_route_7")
-        config.add_route_7_pattern("d4", "\d\d\d\d")
-        config.add_route_7_pattern("d2", "\d\d")
-        config.add_route_7_kvpattern("year", "\d\d\d\d")
-        config.add_route_7_kvpattern("month", "\d\d")
-        config.add_route_7_kvpattern("day", "\d\d")
-        config.add_route_7_kvpattern("user_id", "\d\d\d")
+        config.add_route_7_pattern("d4", r"\d\d\d\d")
+        config.add_route_7_pattern("d2", r"\d\d")
+        config.add_route_7_kvpattern("year", r"\d\d\d\d")
+        config.add_route_7_kvpattern("month", r"\d\d")
+        config.add_route_7_kvpattern("day", r"\d\d")
+        config.add_route_7_kvpattern("user_id", r"\d\d\d")
         # define routes: TOTAL-5
         config.add_route_7("ymd-pattern", "/ymd-pattern/{year|d4}/{month|d2}/{day|d2}")
         config.add_route_7("ymd-kvpattern", "/ymd-kvpattern/{@year}/{@month}/{@day}")

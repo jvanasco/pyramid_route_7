@@ -23,16 +23,16 @@ Here is a canonical example:
 
 .. code-block:: python
 
-    config.add_route_7_kvpattern('year', '\d\d\d\d')
-    config.add_route_7_kvpattern('month', '\d\d')
-    config.add_route_7_kvpattern('day', '\d\d')
-    config.add_route_7('ymd', '/{@year}/{@month}/{@day}')
+    config.add_route_7_kvpattern("year", r"\d\d\d\d")
+    config.add_route_7_kvpattern("month", r"\d\d")
+    config.add_route_7_kvpattern("day", r"\d\d")
+    config.add_route_7("ymd", "/{@year}/{@month}/{@day}")
 
 this will result in route_7 generating the following route:
 
 .. code-block:: python
 
-    config.add_route('ymd',  /{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}')
+    config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
 
 note that they syntax for expanding a route_kvpattern is
 
@@ -51,15 +51,15 @@ Here is a canonical example:
 
 .. code-block:: python
 
-    config.add_route_7_pattern('d4', '\d\d\d\d')
-    config.add_route_7_pattern('d2', '\d\d')
-    config.add_route_7('ymd', '/{year|d4}/{month|d2}/{day|d2}')
+    config.add_route_7_pattern("d4", r"\d\d\d\d")
+    config.add_route_7_pattern("d2", r"\d\d")
+    config.add_route_7("ymd", r"/{year|d4}/{month|d2}/{day|d2}")
 
 this will result in route_7 generating the following route:
 
 .. code-block:: python
 
-    config.add_route_7('ymd',  '/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}')
+    config.add_route_7("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
 
 note that they syntax for expanding a route_pattern is
 
@@ -120,7 +120,7 @@ Before you declare your first route like this:
 
     config.add_route("main", "/")
     config.add_route("foo", "/foo")
-    config.add_route("foo_paginated", "/foo/{page:\d+}")
+    config.add_route("foo_paginated", r"/foo/{page:\d+}")
 
 You should include the package and define some macros
 
@@ -128,12 +128,12 @@ You should include the package and define some macros
 
     # incude pyramid_route_7 and define our routes/macros
     config.include("pyramid_route_7")
-    config.add_route_7_kvpattern('page', '\d+')
+    config.add_route_7_kvpattern("page", r"\d+")
 
 	 # okay, go!
 	 config.add_route("main", "/")
 	 config.add_route("foo", "/foo")
-	 config.add_route("foo_paginated", "/foo/{page:\d+}")
+	 config.add_route("foo_paginated", r"/foo/{page:\d+}")
 
 Step 2 - Just use find & replace in a couple of passes
 ______________________________________________________
@@ -144,15 +144,15 @@ First, replace `config.add_route` with `config.add_route_7`:
 
 	# incude pyramid_route_7 and define our routes/macros
 	config.include("pyramid_route_7")
-	config.add_route_7_kvpattern('page', '\d+')
+	config.add_route_7_kvpattern("page", r"\d+")
 
     # okay, go!
     # config.add_route("main", "/")
  	config.add_route_7("main", "/")
     # config.add_route("foo", "/foo")
     config.add_route_7("foo", "/foo")
-    # config.add_route("foo_paginated", "/foo/{page:\d+}")
-    config.add_route_7("foo_paginated", "/foo/{page:\d+}")
+    # config.add_route("foo_paginated", r"/foo/{page:\d+}")
+    config.add_route_7("foo_paginated", r"/foo/{page:\d+}")
 
 Then find/replace your macros:
 
@@ -160,12 +160,12 @@ Then find/replace your macros:
 
 	# incude pyramid_route_7 and define our routes/macros
 	config.include("pyramid_route_7")
-	config.add_route_7_kvpattern('page', '\d+')
+	config.add_route_7_kvpattern("page", r"\d+")
 
 	# okay, go!
     config.add_route_7("main", "/")
     config.add_route_7("foo", "/foo")
-    # config.add_route_7("foo_paginated", "/foo/{page:\d+}")
+    # config.add_route_7("foo_paginated", r"/foo/{page:\d+}")
     config.add_route_7("foo_paginated", "/foo/{@page}")
 
 Because `add_route_7` simply expands registered macros and passes the result to Pyramid's own `add_route`,
