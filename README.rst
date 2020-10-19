@@ -74,11 +74,23 @@ while the syntax for a route is
     key [colon] regex
 
 
+Warnings
+========
+
+If an second pattern identical to a first pattern is added, this package will
+not raise an exception on the second add.
+
+However, this mimics the behavior of Pyramid itself, which allows for multiple
+conflicting routes to be added without raising an error.
+
+A future version may warn or raise exceptions on conflicting routes.
+
+
 FAQ:
 ====
 
-Q: Why package?
----------------
+Q: Why this package?
+--------------------
 
 In larger applications (dozens of routes), it's not uncommon to see lots of patterns re-used.
 

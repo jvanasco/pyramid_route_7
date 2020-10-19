@@ -25,8 +25,8 @@ class TestConfig(unittest.TestCase):
         config.add_route_7_kvpattern("day", "\d\d")
         config.add_route_7_kvpattern("user_id", "\d\d\d")
         # define routes: TOTAL-5
-        config.add_route_7("ymd-pattern", "/{year|d4}/{month|d2}/{day|d2}")
-        config.add_route_7("ymd-kvpattern", "/{@year}/{@month}/{@day}")
+        config.add_route_7("ymd-pattern", "/ymd-pattern/{year|d4}/{month|d2}/{day|d2}")
+        config.add_route_7("ymd-kvpattern", "/ymd-kvpattern/{@year}/{@month}/{@day}")
         config.add_route_7("user_profile", "/path/to/user/{@user_id}")
         config.add_route_7(
             "user_profile-subfolder1", "/path/to/user/{@user_id}/subfolder-one"
@@ -59,12 +59,16 @@ class TestConfig(unittest.TestCase):
     def test_pattern(self):
         self.assertIn("ymd-pattern", self.routes_dict)
         _route_pattern = self.routes_dict["ymd-pattern"]
-        self.assertEqual(_route_pattern, r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+        self.assertEqual(
+            _route_pattern, r"/ymd-pattern/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}"
+        )
 
     def test_kvpattern(self):
         self.assertIn("ymd-kvpattern", self.routes_dict)
         _route_pattern = self.routes_dict["ymd-kvpattern"]
-        self.assertEqual(_route_pattern, r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+        self.assertEqual(
+            _route_pattern, r"/ymd-kvpattern/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}"
+        )
 
         self.assertIn("user_profile", self.routes_dict)
         _route_pattern = self.routes_dict["user_profile"]
