@@ -13,10 +13,12 @@ with open(os.path.join(HERE, "README.rst")) as f:
     long_description = f.read()
 
 # store version in the init.py
-with open(os.path.join(HERE, "pyramid_route_7", "__init__.py")) as v_file:
+with open(os.path.join(HERE, "src", "pyramid_route_7", "__init__.py")) as v_file:
     VERSION = re.compile(r'.*__VERSION__ = "(.*?)"', re.S).match(v_file.read()).group(1)
 
-requires = ["pyramid"]
+requires = [
+    "pyramid",
+]
 tests_require = [
     "pytest",
     "webtest",
@@ -40,7 +42,10 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
     ],
-    packages=find_packages(),
+    packages=find_packages(
+        where="src",
+    ),
+    package_dir={"": "src"},
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,

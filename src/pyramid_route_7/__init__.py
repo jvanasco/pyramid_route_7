@@ -6,7 +6,7 @@ from pyramid.exceptions import ConfigurationError
 
 import re
 
-__VERSION__ = "0.3.0"
+__VERSION__ = "0.3.1"
 
 
 # ==============================================================================
