@@ -41,5 +41,5 @@ jobs:
         pip freeze
     - name: Test with pytest
       run: |
-      # tox is used to run pytest
-      tox -e py -- ${{ matrix.pytest-args }}
+        # tox is used to run pytest
+        tox -e py -- ${{ matrix.pytest-args }}
