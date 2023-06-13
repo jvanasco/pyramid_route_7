@@ -7,8 +7,6 @@ whitespace in the this file IS SIGNIFICANT AND IMPORTANT.
 the test-cases check for specific whitespace
 """
 
-import pyramid_route_7
-
 # stdblib
 import unittest
 
@@ -16,6 +14,8 @@ import unittest
 from pyramid import testing
 from webtest import TestApp
 
+# local
+# import pyramid_route_7
 
 # ==============================================================================
 

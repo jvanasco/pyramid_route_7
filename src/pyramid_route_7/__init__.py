@@ -1,28 +1,46 @@
+# stdlib
 import logging
-
-log = logging.getLogger(__name__)
-
-from pyramid.exceptions import ConfigurationError
-
 import re
+from typing import Optional
+from typing import TYPE_CHECKING
 
-__VERSION__ = "0.3.1"
+# pypi
+from pyramid.exceptions import ConfigurationError  # type: ignore[import]
 
+# typing
+if TYPE_CHECKING:
+    from pyramid.config import Configurator  # type: ignore[import]
 
 # ==============================================================================
 
+__VERSION__ = "0.4.0"
+
+# ------------------------------------------------------------------------------
+
+log = logging.getLogger(__name__)
 
 REGEX_route_pattern = re.compile(r"\{(([\w]+)\|([\w]+))\}", re.I)
 REGEX_route_kvpattern = re.compile(r"\{(\@([\w]+))\}", re.I)
 
+# ------------------------------------------------------------------------------
 
-# ==============================================================================
 
-
-def add_route_7_kvpattern(config, pattern_key, pattern_regex):
+def add_route_7_kvpattern(
+    config: "Configurator",
+    pattern_key: str,
+    pattern_regex: str,
+):
     r"""
     registers a kvpattern with the configurator.
     a kvpattern is a shortcut pattern for both keys and values.
+
+    :param config: pyramid config
+    :type config: `pyramid.config.Configurator` instance
+    :param pattern_key: the name of the pattern
+    :type pattern_key: str
+    :param pattern_regex: the pattern in regex notation
+    :type pattern_regex: str
+    :returns: None
 
     it is invoked as such:
 
@@ -52,11 +70,24 @@ def add_route_7_kvpattern(config, pattern_key, pattern_regex):
     config.registry.route_7["kvpattern"][pattern_key] = pattern_regex
 
 
-def add_route_7_pattern(config, pattern_name, pattern_regex):
+def add_route_7_pattern(
+    config: "Configurator",
+    pattern_name: str,
+    pattern_regex: str,
+) -> None:
     r"""
     registers a pattern with the configurator.
     a pattern is a shortcut pattern for ONLY the values.
     it must be invoked with a key
+
+    :param config: pyramid config
+    :type config: `pyramid.config.Configurator` instance
+    :param pattern_name: the name of the pattern
+    :type pattern_name: str
+    :param pattern_regex: the pattern in regex notation
+    :type pattern_regex: str
+    :returns: None
+
     it is invoked as such:
 
         config.add_route_7_pattern("d4", r"\d\d\d\d")
@@ -74,11 +105,21 @@ def add_route_7_pattern(config, pattern_name, pattern_regex):
     config.registry.route_7["pattern"][pattern_name] = pattern_regex
 
 
-def add_route_7(config, name, pattern=None, **kwargs):
+def add_route_7(
+    config: "Configurator", name: str, pattern: Optional[str] = None, **kwargs
+) -> None:
     """
     Configuration directive that can be used to register a route
     route_7 allows for a microsyntax in the route declarations.
     after the route declarations are expanded, they are passed onto `add_route`
+
+    :param config: pyramid config
+    :type config: `pyramid.config.Configurator` instance
+    :param name: the name of the route
+    :type name: str
+    :param pattern: the pattern in regex notation
+    :type pattern: str
+    :returns: None
     """
     try:
         if pattern:
@@ -91,7 +132,7 @@ def add_route_7(config, name, pattern=None, **kwargs):
             if _route_patterns or _route_kvpatterns:
                 log.debug("processing %s", pattern)
 
-            for (_macro, _key, _p_name) in _route_patterns:
+            for _macro, _key, _p_name in _route_patterns:
                 if _p_name not in config.registry.route_7["pattern"]:
                     raise ConfigurationError("missing pattern `%s`" % _p_name)
                 _p_value = config.registry.route_7["pattern"][_p_name]
@@ -99,7 +140,7 @@ def add_route_7(config, name, pattern=None, **kwargs):
                 pattern = pattern.replace(_macro, "%s:%s" % (_key, _p_value))
                 log.debug("  updating %s > %s", _pattern_latest, pattern)  # updating
 
-            for (_macro, _p_name) in _route_kvpatterns:
+            for _macro, _p_name in _route_kvpatterns:
                 if _p_name not in config.registry.route_7["kvpattern"]:
                     raise ConfigurationError("missing kvpattern `%s`" % _p_name)
                 _p_value = config.registry.route_7["kvpattern"][_p_name]
@@ -109,12 +150,12 @@ def add_route_7(config, name, pattern=None, **kwargs):
 
             if _pattern_og != pattern:
                 log.debug("     final %s > %s", _pattern_og, pattern)  # updating
-    except:
+    except:  # noqa: E722
         raise
     config.add_route(name, pattern=pattern, **kwargs)
 
 
-def includeme(config):
+def includeme(config: "Configurator") -> None:
     """Function that gets called when client code calls config.include"""
     config.add_directive("add_route_7", add_route_7)
     config.add_directive("add_route_7_pattern", add_route_7_pattern)

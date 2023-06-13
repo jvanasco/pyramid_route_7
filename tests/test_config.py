@@ -1,15 +1,14 @@
 from __future__ import print_function
 
-import pyramid_route_7
-
 # stdblib
 import unittest
 
 # pypi
 from pyramid import testing
-from pyramid.urldispatch import Route
 from pyramid.interfaces import IRoutesMapper
 
+# local
+# import pyramid_route_7
 
 # ==============================================================================
 
