@@ -5,11 +5,11 @@ from typing import Optional
 from typing import TYPE_CHECKING
 
 # pypi
-from pyramid.exceptions import ConfigurationError  # type: ignore[import]
+from pyramid.exceptions import ConfigurationError
 
 # typing
 if TYPE_CHECKING:
-    from pyramid.config import Configurator  # type: ignore[import]
+    from pyramid.config import Configurator
 
 # ==============================================================================
 
