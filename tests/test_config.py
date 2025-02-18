@@ -33,6 +33,9 @@ class TestConfig(unittest.TestCase):
         config.add_route_7(
             "user_profile-subfolder2", "/path/to/user/{@user_id}/subfolder-two"
         )
+        config.add_route_7(
+            "user_profile-alt", "/path/to/user-alt/{@user_id}", jsonify=True
+        )
         # END define routes
         self.context = testing.DummyResource()
         self.request = testing.DummyRequest()
@@ -52,8 +55,9 @@ class TestConfig(unittest.TestCase):
         #   * `config.add_route_7_pattern`
         #   * `config.add_route_7_kvpattern`
         #   * `config.add_route_7`
-        # just ensure we added 5 routes
-        self.assertEqual(5, len(self.routes))
+        # just ensure we added 7 routes
+        # 6 routes explcity + 1 route implicit via jsonify
+        self.assertEqual(7, len(self.routes))
 
     def test_pattern(self):
         self.assertIn("ymd-pattern", self.routes_dict)
@@ -84,3 +88,11 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(
             _route_pattern, r"/path/to/user/{user_id:\d\d\d}/subfolder-two"
         )
+
+        self.assertIn("user_profile-alt", self.routes_dict)
+        _route_pattern = self.routes_dict["user_profile-alt"]
+        self.assertEqual(_route_pattern, r"/path/to/user-alt/{user_id:\d\d\d}")
+
+        self.assertIn("user_profile-alt|json", self.routes_dict)
+        _route_pattern = self.routes_dict["user_profile-alt|json"]
+        self.assertEqual(_route_pattern, r"/path/to/user-alt/{user_id:\d\d\d}.json")

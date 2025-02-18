@@ -76,3 +76,14 @@ class PyramidTestApp(unittest.TestCase):
         res = self.testapp.get("/path/to/user/ab", status=404)
         res = self.testapp.get("/path/to/user/abc", status=404)
         res = self.testapp.get("/path/to/user/123/subfolder-1", status=404)
+
+    def test_user_alt(self):
+        res = self.testapp.get("/path/to/user-alt/123", status=200)
+        self.assertEqual(res.json["route_name"], "user_profile-alt")
+        self.assertEqual(res.json["matchdict"]["user_id"], "123")
+        self.assertFalse(res.json["jsonify"])
+
+        res = self.testapp.get("/path/to/user-alt/123.json", status=200)
+        self.assertEqual(res.json["route_name"], "user_profile-alt|json")
+        self.assertEqual(res.json["matchdict"]["user_id"], "123")
+        self.assertTrue(res.json["jsonify"])
