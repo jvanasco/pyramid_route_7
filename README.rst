@@ -80,8 +80,8 @@ while the syntax for a route is
 also note the effect of `jsonify=True` is to create a secondary route with the
 following criteria:
 
-* route name has "|json" suffix
-* route pattern has ".json" suffix
+- route name has "\|json" suffix
+- route pattern has ".json" suffix
 
 
 Warnings
