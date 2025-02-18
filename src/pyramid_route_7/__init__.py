@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # ==============================================================================
 
-__VERSION__ = "0.4.1"
+__VERSION__ = "0.5.0"
 
 # ------------------------------------------------------------------------------
 
@@ -106,12 +106,20 @@ def add_route_7_pattern(
 
 
 def add_route_7(
-    config: "Configurator", name: str, pattern: Optional[str] = None, **kwargs
+    config: "Configurator",
+    name: str,
+    pattern: Optional[str] = None,
+    jsonify: Optional[bool] = False,
+    **kwargs,
 ) -> None:
     """
     Configuration directive that can be used to register a route
     route_7 allows for a microsyntax in the route declarations.
     after the route declarations are expanded, they are passed onto `add_route`
+
+    if jsonify is true, a second route declaration will be added:
+        * The url will be appended with ".json"
+        * the route_name will be appented with "|json"
 
     :param config: pyramid config
     :type config: `pyramid.config.Configurator` instance
@@ -119,6 +127,8 @@ def add_route_7(
     :type name: str
     :param pattern: the pattern in regex notation
     :type pattern: str
+    :param jsonify: if true, adds a json route and url
+    :type jsonify: bool
     :returns: None
     """
     try:
@@ -153,6 +163,10 @@ def add_route_7(
     except:  # noqa: E722
         raise
     config.add_route(name, pattern=pattern, **kwargs)
+    if jsonify:
+        json_name = "%s|json" % name
+        json_pattern = "%s.json" % pattern
+        config.add_route(json_name, pattern=json_pattern, **kwargs)
 
 
 def includeme(config: "Configurator") -> None:

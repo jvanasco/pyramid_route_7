@@ -24,6 +24,7 @@ def main(global_config, **settings):
     config.add_route_7(
         "user_profile-subfolder2", "/path/to/user/{@user_id}/subfolder-two"
     )
+    config.add_route_7("user_profile-alt", "/path/to/user-alt/{@user_id}", jsonify=True)
 
     config.scan()
     return config.make_wsgi_app()

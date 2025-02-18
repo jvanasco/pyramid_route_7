@@ -34,7 +34,7 @@ this will result in route_7 generating the following route:
 
     config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
 
-note that they syntax for expanding a route_kvpattern is
+note that they syntax for expanding a route_kvpattern is:
 
 .. code-block:: shell
 
@@ -54,12 +54,16 @@ Here is a canonical example:
     config.add_route_7_pattern("d4", r"\d\d\d\d")
     config.add_route_7_pattern("d2", r"\d\d")
     config.add_route_7("ymd", r"/{year|d4}/{month|d2}/{day|d2}")
+    config.add_route_7("ymd-alt", "/alt/{@year}/{@month}/{@day}", jsonify=True)
 
-this will result in route_7 generating the following route:
+this will result in route_7 generating the following routes:
 
 .. code-block:: python
 
-    config.add_route_7("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+    config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+    config.add_route("ymd-alt",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}.json")
+    config.add_route("ymd-alt|json",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}.json")
+
 
 note that they syntax for expanding a route_pattern is
 
@@ -72,6 +76,12 @@ while the syntax for a route is
 .. code-block:: shell
 
     key [colon] regex
+
+also note the effect of `jsonify=True` is to create a secondary route with the
+following criteria:
+
+* route name has "|json" suffix
+* route pattern has ".json" suffix
 
 
 Warnings
@@ -101,7 +111,7 @@ Q: Why the name "route_7"?
 --------------------------
 A: Two reasons:
 * It makes it trivial to implement on existing projects by replacing `add_route` with `add_route_7`, and vice-versa
-* "The Lurid Traversal of Route 7" by Hoover, might... just might... be the best album on Dischord records. (http://www.dischord.com/release/089/lurid-traversal-of-rte-7)
+* "The Lurid Traversal of Route 7" by Hoover, might... just might... be the best album on Dischord records. (http://www.dischord.com/release/089/lurid-traversal-of-rte-7)  Dischord put out a lot of great records.
 
 
 Q: Any integration tips?
