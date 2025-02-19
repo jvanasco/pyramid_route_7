@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # ==============================================================================
 
-__VERSION__ = "0.5.1"
+__VERSION__ = "0.5.2"
 
 # ------------------------------------------------------------------------------
 
@@ -163,11 +163,13 @@ def add_route_7(
                 log.debug("     final %s > %s", _pattern_og, pattern)  # updating
     except:  # noqa: E722
         raise
-    config.add_route(name, pattern=pattern, **kwargs)
+    # add the json route first, so the `.json` extension
+    # is not consumed by greedy patterns
     if jsonify:
         json_name = "%s|json" % name
         json_pattern = "%s.json" % pattern
         config.add_route(json_name, pattern=json_pattern, **kwargs)
+    config.add_route(name, pattern=pattern, **kwargs)
 
 
 def includeme(config: "Configurator") -> None:

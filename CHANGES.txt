@@ -1,3 +1,6 @@
+0.5.2-
+    * json routes are now first, to keep patterns from matching against the extension
+
 0.5.1-
     * docs edit
 
