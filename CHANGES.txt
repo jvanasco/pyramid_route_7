@@ -1,3 +1,6 @@
+0.5.1-
+    * docs edit
+
 0.5.0 -
     * add support for quickly making json endpoints
 

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # ==============================================================================
 
-__VERSION__ = "0.5.0"
+__VERSION__ = "0.5.1"
 
 # ------------------------------------------------------------------------------
 
@@ -47,9 +47,10 @@ def add_route_7_kvpattern(
         config.add_route_7_kvpattern("year", r"\d\d\d\d")
         config.add_route_7_kvpattern("month", r"\d\d")
         config.add_route_7_kvpattern("day", r"\d\d")
-        config.add_route("ymd", "/{@year}/{@month}/{@day}")
+        config.add_route_7("ymd", "/{@year}/{@month}/{@day}")
 
     this will result in route_7 generating the following route:
+
         config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
 
     it is very useful for matchdicts that you constantly recycle
@@ -58,12 +59,12 @@ def add_route_7_kvpattern(
         config.add_route("user_profile-subfolder1", r"/path/to/user/{user_id:\d\d\d}/subfolder-one")
         config.add_route("user_profile-subfolder2", r"/path/to/user/{user_id:\d\d\d}/subfolder-two")
 
-    can now be:
+    can now be written as:
 
         config.add_route_7_kvpattern("user_id", r"\d\d\d")
-        config.add_route("user_profile", "/path/to/user/{@user_id}")
-        config.add_route("user_profile-subfolder1", "/path/to/user/{@user_id}/subfolder-one")
-        config.add_route("user_profile-subfolder2", "/path/to/user/{@user_id}/subfolder-two")
+        config.add_route_7("user_profile", "/path/to/user/{@user_id}")
+        config.add_route_7("user_profile-subfolder1", "/path/to/user/{@user_id}/subfolder-one")
+        config.add_route_7("user_profile-subfolder2", "/path/to/user/{@user_id}/subfolder-two")
     """
     if pattern_key in config.registry.route_7["kvpattern"]:
         raise ConfigurationError("`pattern_key` exists")
@@ -92,7 +93,7 @@ def add_route_7_pattern(
 
         config.add_route_7_pattern("d4", r"\d\d\d\d")
         config.add_route_7_pattern("d2", r"\d\d")
-        config.add_route("ymd", "/{year|d4}/{month|d2}/{day|d2}")
+        config.add_route_7("ymd", "/{year|d4}/{month|d2}/{day|d2}")
 
     note that they syntax for expanding a route_pattern is
         key [pipe] pattern
