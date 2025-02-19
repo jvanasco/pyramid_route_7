@@ -8,6 +8,55 @@ Route 7
 
 It works through a ridiculously simple mechanism -- when calling `add_route_7` instead of `add_route`, the package expands the macros in the route declaration, then immediately calls pyramid's own `add_route`.
 
+
+Summary
+=======
+
+`pyramid_route_7` offers a microtemplating language for creating more maintainable routes in Pyramid:  
+
+For example, kv patterns can be created, such as these for matching date components:
+
+.. code-block:: python
+
+    config.include("pyramid_route_7")
+    config.add_route_7_kvpattern("year", r"\d\d\d\d")
+    config.add_route_7_kvpattern("month", r"\d\d")
+    config.add_route_7_kvpattern("day", r"\d\d")
+
+Which can then be reused across multiple routes with a readable syntax:
+
+.. code-block:: python
+
+    config.add_route_7("calendar", "/calendar/{@year}/{@month}/{@day}")
+
+This is equivalent to invoking:
+
+.. code-block:: python
+
+    config.add_route("calendar",  r"/calendar/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+
+A `jsonify` parameter will also create a secondary json route:
+
+.. code-block:: python
+
+    config.add_route_7("calendar", "/calendar/{@year}/{@month}/{@day}", jsonify=True)
+
+Which is equivalent to invoking:
+
+.. code-block:: python
+
+    config.add_route("calendar",  r"/calendar/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
+    config.add_route("calendar|json",  r"/calendar/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}.json")
+
+
+Links:
+
+Github
+    https://github.com/jvanasco/pyramid_route_7
+
+PyPy
+    https://pypi.org/project/pyramid-route-7/
+
 Usage
 =====
 
