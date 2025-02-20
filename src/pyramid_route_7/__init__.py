@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 # ==============================================================================
 
-__VERSION__ = "0.5.2"
+__VERSION__ = "0.5.3"
 
 # ------------------------------------------------------------------------------
 
@@ -31,37 +31,43 @@ def add_route_7_kvpattern(
     pattern_regex: str,
 ):
     r"""
-    registers a kvpattern with the configurator.
-    a kvpattern is a shortcut pattern for both keys and values.
+    Register a `kvpattern` with the `Configurator`.
+    A `kvpattern` is a shortcut pattern for both keys AND values.
 
     :param config: pyramid config
     :type config: `pyramid.config.Configurator` instance
+
     :param pattern_key: the name of the pattern
     :type pattern_key: str
+
     :param pattern_regex: the pattern in regex notation
     :type pattern_regex: str
-    :returns: None
 
-    it is invoked as such:
+    :returns: `None`
+
+    It is invoked as such:
 
         config.add_route_7_kvpattern("year", r"\d\d\d\d")
         config.add_route_7_kvpattern("month", r"\d\d")
         config.add_route_7_kvpattern("day", r"\d\d")
         config.add_route_7("ymd", "/{@year}/{@month}/{@day}")
 
-    this will result in route_7 generating the following route:
+    The above will result in `pyramid_route_7` generating the following route:
 
         config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
 
-    it is very useful for matchdicts that you constantly recycle
+    This is useful for `matchdict`s that are re-used across a project.
+
+    The following Pyramid code:
 
         config.add_route("user_profile", r"/path/to/user/{user_id:\d\d\d}")
         config.add_route("user_profile-subfolder1", r"/path/to/user/{user_id:\d\d\d}/subfolder-one")
         config.add_route("user_profile-subfolder2", r"/path/to/user/{user_id:\d\d\d}/subfolder-two")
 
-    can now be written as:
+    Can now be written as:
 
         config.add_route_7_kvpattern("user_id", r"\d\d\d")
+
         config.add_route_7("user_profile", "/path/to/user/{@user_id}")
         config.add_route_7("user_profile-subfolder1", "/path/to/user/{@user_id}/subfolder-one")
         config.add_route_7("user_profile-subfolder2", "/path/to/user/{@user_id}/subfolder-two")
@@ -77,28 +83,32 @@ def add_route_7_pattern(
     pattern_regex: str,
 ) -> None:
     r"""
-    registers a pattern with the configurator.
-    a pattern is a shortcut pattern for ONLY the values.
-    it must be invoked with a key
+    Register a `pattern` with the `Configurator`.
+    A `pattern` is a shortcut pattern for ONLY the values.
+    It MUST be invoked with a key in route declarations.
 
     :param config: pyramid config
     :type config: `pyramid.config.Configurator` instance
+
     :param pattern_name: the name of the pattern
     :type pattern_name: str
+
     :param pattern_regex: the pattern in regex notation
     :type pattern_regex: str
-    :returns: None
 
-    it is invoked as such:
+    :returns: `None`
+
+    It is invoked as such:
 
         config.add_route_7_pattern("d4", r"\d\d\d\d")
         config.add_route_7_pattern("d2", r"\d\d")
         config.add_route_7("ymd", "/{year|d4}/{month|d2}/{day|d2}")
 
-    note that they syntax for expanding a route_pattern is
+    Note that the syntax for expanding a route_pattern is:
+
         key [pipe] pattern
 
-    this will result in route_7 generating the following route:
+    This will result in `pyramid_route_7` generating the following route:
         config.add_route("ymd",  r"/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}")
     """
     if pattern_name in config.registry.route_7["pattern"]:
@@ -110,17 +120,31 @@ def add_route_7(
     config: "Configurator",
     name: str,
     pattern: Optional[str] = None,
+    paginate: Optional[bool] = False,
     jsonify: Optional[bool] = False,
     **kwargs,
 ) -> None:
-    """
-    Configuration directive that can be used to register a route
-    route_7 allows for a microsyntax in the route declarations.
-    after the route declarations are expanded, they are passed onto `add_route`
+    r"""
+    Configuration directive that can be used to register a route.
 
-    if jsonify is true, a second route declaration will be added:
-        * The url will be appended with ".json"
-        * the route_name will be appented with "|json"
+    `pyramid_route_7` allows for a microsyntax in the route declarations.
+
+    After the route declarations are expanded, they are passed onto the
+    native Pyramid `add_route` command.
+
+    If `jsonify` is `True`, an additional route declaration will be added:
+        * The `url` will be appended with ".json"
+        * the `route_name` will be appented with "|json"
+
+    In order to defend against greedy patterns, a `jsonify` route will be added
+    to the `Configurator` *before* the standard route is added.
+
+    If `paginate` is `True`, an additional route declaration will be added:
+        * The `url` will be appended with "/{page:\d+}"
+        * the `route_name` will be appented with "_paginated"
+
+    if `paginate` AND `json` are both true:
+         pagination routes will be declared first
 
     :param config: pyramid config
     :type config: `pyramid.config.Configurator` instance
@@ -130,6 +154,8 @@ def add_route_7(
     :type pattern: str
     :param jsonify: if true, adds a json route and url
     :type jsonify: bool
+    :param paginate: if true, adds a json route and url
+    :type paginate: bool
     :returns: None
     """
     try:
@@ -166,9 +192,17 @@ def add_route_7(
     # add the json route first, so the `.json` extension
     # is not consumed by greedy patterns
     if jsonify:
-        json_name = "%s|json" % name
-        json_pattern = "%s.json" % pattern
-        config.add_route(json_name, pattern=json_pattern, **kwargs)
+        j_name = "%s|json" % name
+        j_pattern = "%s.json" % pattern
+        config.add_route(j_name, pattern=j_pattern, **kwargs)
+    if paginate:
+        if jsonify:
+            jp_name = "%s-paginated|json" % name
+            jp_pattern = r"%s/{page:\d+}.json" % pattern
+            config.add_route(jp_name, pattern=jp_pattern, **kwargs)
+        p_name = "%s-paginated" % name
+        p_pattern = r"%s/{page:\d+}" % pattern
+        config.add_route(p_name, pattern=p_pattern, **kwargs)
     config.add_route(name, pattern=pattern, **kwargs)
 
 

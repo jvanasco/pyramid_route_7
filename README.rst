@@ -49,6 +49,36 @@ Which is equivalent to invoking:
     config.add_route("calendar|json",  r"/calendar/{year:\d\d\d\d}/{month:\d\d}/{day:\d\d}.json")
 
 
+A `paginate` parameter will also create a secondary paginated route:
+
+.. code-block:: python
+
+    config.add_route_7("items", "/items", paginate=True)
+
+Which is equivalent to invoking:
+
+.. code-block:: python
+
+    config.add_route("items",  r"/items")
+    config.add_route("items-paginated",  r"/items/{page:\d+}")
+
+
+Both `jsonify` and `paginate` can be called together:
+
+.. code-block:: python
+
+    config.add_route_7("items_api", "/items/api", jsonify=True, paginate=True)
+
+Which is equivalent to invoking:
+
+.. code-block:: python
+
+    config.add_route("items_api|json",  r"/items/api.jon")
+    config.add_route("items_api-paginated|json",  r"/items/api/{page:\d+}.json")
+    config.add_route("items_api-paginated",  r"/items/api/{page:\d+}")
+    config.add_route("items_api",  r"/items/api")
+
+
 Links:
 
 Github

@@ -36,6 +36,9 @@ class TestConfig(unittest.TestCase):
         config.add_route_7(
             "user_profile-alt", "/path/to/user-alt/{@user_id}", jsonify=True
         )
+        config.add_route_7("items", "/items", paginate=True)  # 2
+        config.add_route_7("items_api", "/items/api", paginate=True, jsonify=True)
+
         # END define routes
         self.context = testing.DummyResource()
         self.request = testing.DummyRequest()
@@ -50,14 +53,19 @@ class TestConfig(unittest.TestCase):
         testing.tearDown()
 
     def test_setup(self):
-        # if setup failed, the following would have raised exceptions
-        #   in `_TestHarness.setUp` :
-        #   * `config.add_route_7_pattern`
-        #   * `config.add_route_7_kvpattern`
-        #   * `config.add_route_7`
-        # just ensure we added 7 routes
-        # 6 routes explcity + 1 route implicit via jsonify
-        self.assertEqual(7, len(self.routes))
+        """
+        if setup failed, the following would have raised exceptions
+          in `_TestHarness.setUp` :
+          * `config.add_route_7_pattern`
+          * `config.add_route_7_kvpattern`
+          * `config.add_route_7`
+        just ensure we added 7 routes
+          *  8 routes explcity
+          * +1 route via jsonify
+          * +1 route via paginate
+          * +3 routes via jsonify+paginate
+        """
+        self.assertEqual(13, len(self.routes))
 
     def test_pattern(self):
         self.assertIn("ymd-pattern", self.routes_dict)
@@ -96,3 +104,27 @@ class TestConfig(unittest.TestCase):
         self.assertIn("user_profile-alt|json", self.routes_dict)
         _route_pattern = self.routes_dict["user_profile-alt|json"]
         self.assertEqual(_route_pattern, r"/path/to/user-alt/{user_id:\d\d\d}.json")
+
+        self.assertIn("items", self.routes_dict)
+        _route_pattern = self.routes_dict["items"]
+        self.assertEqual(_route_pattern, r"/items")
+
+        self.assertIn("items-paginated", self.routes_dict)
+        _route_pattern = self.routes_dict["items-paginated"]
+        self.assertEqual(_route_pattern, r"/items/{page:\d+}")
+
+        self.assertIn("items_api", self.routes_dict)
+        _route_pattern = self.routes_dict["items_api"]
+        self.assertEqual(_route_pattern, r"/items/api")
+
+        self.assertIn("items_api|json", self.routes_dict)
+        _route_pattern = self.routes_dict["items_api|json"]
+        self.assertEqual(_route_pattern, r"/items/api.json")
+
+        self.assertIn("items_api-paginated", self.routes_dict)
+        _route_pattern = self.routes_dict["items_api-paginated"]
+        self.assertEqual(_route_pattern, r"/items/api/{page:\d+}")
+
+        self.assertIn("items_api-paginated|json", self.routes_dict)
+        _route_pattern = self.routes_dict["items_api-paginated|json"]
+        self.assertEqual(_route_pattern, r"/items/api/{page:\d+}.json")

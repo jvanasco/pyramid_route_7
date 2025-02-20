@@ -87,3 +87,29 @@ class PyramidTestApp(unittest.TestCase):
         self.assertEqual(res.json["route_name"], "user_profile-alt|json")
         self.assertEqual(res.json["matchdict"]["user_id"], "123")
         self.assertTrue(res.json["jsonify"])
+
+    def test_items(self):
+        res = self.testapp.get("/items", status=200)
+        self.assertEqual(res.json["route_name"], "items")
+        self.assertFalse(res.json["jsonify"])
+
+        res = self.testapp.get("/items/1", status=200)
+        self.assertEqual(res.json["route_name"], "items-paginated")
+        self.assertFalse(res.json["jsonify"])
+
+    def test_items_api(self):
+        res = self.testapp.get("/items/api", status=200)
+        self.assertEqual(res.json["route_name"], "items_api")
+        self.assertFalse(res.json["jsonify"])
+
+        res = self.testapp.get("/items/api.json", status=200)
+        self.assertEqual(res.json["route_name"], "items_api|json")
+        self.assertTrue(res.json["jsonify"])
+
+        res = self.testapp.get("/items/api/1", status=200)
+        self.assertEqual(res.json["route_name"], "items_api-paginated")
+        self.assertFalse(res.json["jsonify"])
+
+        res = self.testapp.get("/items/api/1.json", status=200)
+        self.assertEqual(res.json["route_name"], "items_api-paginated|json")
+        self.assertTrue(res.json["jsonify"])
