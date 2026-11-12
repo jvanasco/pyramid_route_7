@@ -5,6 +5,7 @@ import unittest
 
 # pypi
 from pyramid import testing
+from pyramid.exceptions import ConfigurationError
 from pyramid.interfaces import IRoutesMapper
 
 # local
@@ -128,3 +129,47 @@ class TestConfig(unittest.TestCase):
         self.assertIn("items_api-paginated|json", self.routes_dict)
         _route_pattern = self.routes_dict["items_api-paginated|json"]
         self.assertEqual(_route_pattern, r"/items/api/{page:\d+}.json")
+
+    def test_duplicate_macro_registrations(self) -> None:
+        """Reject duplicate macro names within each registry."""
+        with self.assertRaisesRegex(ConfigurationError, "pattern_name"):
+            self.config.add_route_7_pattern("d4", r"[a-z]+")
+        with self.assertRaisesRegex(ConfigurationError, "pattern_key"):
+            self.config.add_route_7_kvpattern("year", r"[a-z]+")
+
+    def test_missing_macros(self) -> None:
+        """Reject unknown macros before registering any route variants."""
+        expected_routes = list(self.routes)
+        for pattern, error in (
+            ("/{year|unknown}", "missing pattern"),
+            ("/{@unknown}", "missing kvpattern"),
+        ):
+            with self.subTest(pattern=pattern):
+                with self.assertRaisesRegex(ConfigurationError, error):
+                    self.config.add_route_7(
+                        "unknown", pattern, paginate=True, jsonify=True
+                    )
+        self.assertEqual(self.mapper.get_routes(), expected_routes)
+
+    def test_route_predicates_on_variants(self) -> None:
+        """Apply Pyramid route predicates to every generated route."""
+        self.config.add_route_7(
+            "filtered", "/filtered", paginate=True, jsonify=True, request_method="POST"
+        )
+        for path, route_name in (
+            ("/filtered", "filtered"),
+            ("/filtered.json", "filtered|json"),
+            ("/filtered/2", "filtered-paginated"),
+            ("/filtered/2.json", "filtered-paginated|json"),
+        ):
+            with self.subTest(path=path):
+                post = testing.DummyRequest(path_info=path, method="POST")
+                get = testing.DummyRequest(path_info=path, method="GET")
+                self.assertEqual(self.mapper(post)["route"].name, route_name)
+                self.assertIsNone(self.mapper(get)["route"])
+
+    def test_native_route_pattern(self) -> None:
+        """Preserve native Pyramid syntax when a route has no macros."""
+        pattern = r"/native/{item:[a-z]+}"
+        self.config.add_route_7("native", pattern)
+        self.assertEqual(self.mapper.get_route("native").pattern, pattern)
