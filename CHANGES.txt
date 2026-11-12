@@ -1,5 +1,7 @@
 0.5.3-
     * added support for simple pagination
+    * consolidated setuptools and tox configuration into setup.cfg
+    * moved mypy configuration to pyproject.toml
 
 0.5.2-
     * json routes are now first, to keep patterns from matching against the extension
