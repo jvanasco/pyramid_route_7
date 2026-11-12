@@ -28,6 +28,7 @@ def main(global_config, **settings):
 
     config.add_route_7("items", "/items", paginate=True)  # 2
     config.add_route_7("items_api", "/items/api", paginate=True, jsonify=True)
+    config.add_route_7("files", r"/files/{filename:.*}", paginate=True, jsonify=True)
 
     config.scan()
     return config.make_wsgi_app()

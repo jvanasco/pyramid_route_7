@@ -2,6 +2,7 @@ from __future__ import print_function
 
 # stdblib
 import unittest
+from unittest.mock import patch
 
 # pypi
 from pyramid import testing
@@ -173,3 +174,19 @@ class TestConfig(unittest.TestCase):
         pattern = r"/native/{item:[a-z]+}"
         self.config.add_route_7("native", pattern)
         self.assertEqual(self.mapper.get_route("native").pattern, pattern)
+
+    def test_omitted_pattern(self) -> None:
+        """Report the route name before registering any variants."""
+        with patch.object(self.config, "add_route") as add_route:
+            with self.assertRaisesRegex(ConfigurationError, "missing route pattern.*broken"):
+                self.config.add_route_7("broken", paginate=True, jsonify=True)
+            add_route.assert_not_called()
+
+    def test_macro_replacements_are_literal(self) -> None:
+        """Expand mixed macros without revisiting inserted regex text."""
+        self.config.add_route_7_pattern("literal", r"[{@year}]")
+        with patch.object(self.config, "add_route") as add_route:
+            self.config.add_route_7("mixed", "/{item|literal}/{@year}/{other|d2}")
+            add_route.assert_called_once_with(
+                "mixed", pattern=r"/{item:[{@year}]}/{year:\d\d\d\d}/{other:\d\d}"
+            )

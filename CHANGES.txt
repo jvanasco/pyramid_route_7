@@ -3,6 +3,9 @@
     * moved mypy configuration to pyproject.toml
     * updated the GitHub Actions test matrix and added branch coverage reporting
     * expanded route registration and sample application tests
+    * register paginated JSON routes before greedy unpaginated JSON routes
+    * raise a configuration error when a route pattern is omitted
+    * expand route macros in a single pass to preserve registered regex text
 
 0.5.3-
     * added support for simple pagination

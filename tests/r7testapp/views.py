@@ -6,6 +6,10 @@ from pyramid.view import view_config
 @view_config(route_name="user_profile", renderer="json")
 @view_config(route_name="user_profile-subfolder1", renderer="json")
 @view_config(route_name="user_profile-subfolder2", renderer="json")
+@view_config(route_name="files", renderer="json")
+@view_config(route_name="files|json", renderer="json")
+@view_config(route_name="files-paginated", renderer="json")
+@view_config(route_name="files-paginated|json", renderer="json")
 def simple(request):
     return {
         "matchdict": request.matchdict,
