@@ -30,7 +30,7 @@ testing_extras = tests_require + []
 setup(
     name="pyramid_route_7",
     author="Jonathan Vanasco",
-    author_email="jonathan@findmeon.com",
+    author_email="jvanasco@2xlp.com",
     url="https://github.com/jvanasco/pyramid_route_7",
     version=VERSION,
     description=description,
@@ -49,6 +49,8 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(
