@@ -1,3 +1,14 @@
 [tool.black]
 target-version = ['py36']
 
+[tool.mypy]
+check_untyped_defs = true
+exclude = '''(?x)(
+      ^.eggs\/
+    | ^.tox\/
+    | ^build\/
+    )'''
+
+[[tool.mypy.overrides]]
+module = ["pyramid.*", "webtest.*"]
+ignore_missing_imports = true

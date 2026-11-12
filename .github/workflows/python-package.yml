@@ -1,47 +1,60 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Python package
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
-    name: core-tests--py-${{ matrix.python-version }}--${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
-        os:
-          - "ubuntu-22.04"
-        python-version: 
-          - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          - "3.13"
-        include:
-          # ubuntu-latest[22.04] does not have: py27, py36
-          - os: "ubuntu-20.04"
-            python-version: "3.6"
-        pyramid-version: [">=2"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade tox setuptools flake8 pytest mypy
-        pip freeze
-    - name: Test with pytest
-      run: |
-        # tox is used to run pytest
-        tox -e py -- ${{ matrix.pytest-args }}
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: ${{ matrix.python-version == '3.15' }}
+      - name: Install package and test dependencies
+        run: python -m pip install ".[testing]" "pyramid>=2"
+      - name: Run tests
+        if: matrix.python-version != '3.14'
+        run: python -m pytest
+      - name: Run tests with branch coverage
+        if: matrix.python-version == '3.14'
+        run: |
+          python -m pip install coverage
+          python -m coverage run --branch --source=pyramid_route_7 -m pytest
+          python -m coverage report --show-missing
+          {
+            echo '### Python 3.14 branch coverage'
+            echo '~~~text'
+            python -m coverage report --show-missing
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  python36:
+    name: Python 3.6
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # setup-python has no Python 3.6 build for this runner.
+      - name: Run tests in the Python 3.6 image
+        run: |
+          docker run --rm --volume "$GITHUB_WORKSPACE:/workspace" --workdir /workspace \
+            python:3.6.15-slim-bullseye sh -ec '
+              python -m pip install ".[testing]" "pyramid>=2"
+              python -m pytest
+            '

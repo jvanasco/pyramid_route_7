@@ -1,6 +1,8 @@
 # stdlib
 import logging
 import re
+from typing import Any
+from typing import Match
 from typing import Optional
 from typing import TYPE_CHECKING
 
@@ -13,14 +15,13 @@ if TYPE_CHECKING:
 
 # ==============================================================================
 
-__VERSION__ = "0.5.3"
+__VERSION__ = "1.0.0"
 
 # ------------------------------------------------------------------------------
 
 log = logging.getLogger(__name__)
 
-REGEX_route_pattern = re.compile(r"\{(([\w]+)\|([\w]+))\}", re.I)
-REGEX_route_kvpattern = re.compile(r"\{(\@([\w]+))\}", re.I)
+_ROUTE_MACRO = re.compile(r"\{(?:(?P<key>\w+)\|(?P<pattern>\w+)|@(?P<kvpattern>\w+))\}", re.I)
 
 # ------------------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ def add_route_7_kvpattern(
     config: "Configurator",
     pattern_key: str,
     pattern_regex: str,
-):
+) -> None:
     r"""
     Register a `kvpattern` with the `Configurator`.
     A `kvpattern` is a shortcut pattern for both keys AND values.
@@ -122,7 +123,7 @@ def add_route_7(
     pattern: Optional[str] = None,
     paginate: Optional[bool] = False,
     jsonify: Optional[bool] = False,
-    **kwargs,
+    **kwargs: Any,
 ) -> None:
     r"""
     Configuration directive that can be used to register a route.
@@ -134,76 +135,61 @@ def add_route_7(
 
     If `jsonify` is `True`, an additional route declaration will be added:
         * The `url` will be appended with ".json"
-        * the `route_name` will be appented with "|json"
+        * the `route_name` will be appended with "|json"
 
     In order to defend against greedy patterns, a `jsonify` route will be added
     to the `Configurator` *before* the standard route is added.
 
     If `paginate` is `True`, an additional route declaration will be added:
         * The `url` will be appended with "/{page:\d+}"
-        * the `route_name` will be appented with "_paginated"
+        * the `route_name` will be appended with "-paginated"
 
-    if `paginate` AND `json` are both true:
-         pagination routes will be declared first
+    When both options are enabled, the paginated JSON route is registered
+    before the unpaginated JSON route. Both precede the non-JSON routes.
 
     :param config: pyramid config
     :type config: `pyramid.config.Configurator` instance
     :param name: the name of the route
     :type name: str
-    :param pattern: the pattern in regex notation
+    :param pattern: the required route pattern
     :type pattern: str
     :param jsonify: if true, adds a json route and url
     :type jsonify: bool
-    :param paginate: if true, adds a json route and url
+    :param paginate: if true, adds a route and URL with a numeric page segment
     :type paginate: bool
     :returns: None
     """
-    try:
-        if pattern:
-            _pattern_og = pattern
-            _pattern_latest = pattern
+    if pattern is None:
+        raise ConfigurationError("missing route pattern for `%s`" % name)
 
-            # set dedupes
-            _route_patterns = set(REGEX_route_pattern.findall(pattern))
-            _route_kvpatterns = set(REGEX_route_kvpattern.findall(pattern))
-            if _route_patterns or _route_kvpatterns:
-                log.debug("processing %s", pattern)
+    def expand_macro(match: Match[str]) -> str:
+        """Expand one macro from the original route declaration."""
+        kvpattern = match.group("kvpattern")
+        if kvpattern is not None:
+            kind, key, macro = "kvpattern", kvpattern, kvpattern
+        else:
+            kind, key, macro = "pattern", match.group("key"), match.group("pattern")
+        patterns = config.registry.route_7[kind]
+        if macro not in patterns:
+            raise ConfigurationError("missing %s `%s`" % (kind, macro))
+        return "{%s:%s}" % (key, patterns[macro])
 
-            for _macro, _key, _p_name in _route_patterns:
-                if _p_name not in config.registry.route_7["pattern"]:
-                    raise ConfigurationError("missing pattern `%s`" % _p_name)
-                _p_value = config.registry.route_7["pattern"][_p_name]
-                _pattern_latest = pattern  # stash for logging
-                pattern = pattern.replace(_macro, "%s:%s" % (_key, _p_value))
-                log.debug("  updating %s > %s", _pattern_latest, pattern)  # updating
+    expanded = _ROUTE_MACRO.sub(expand_macro, pattern)
+    if expanded != pattern:
+        log.debug("expanded route pattern %s > %s", pattern, expanded)
 
-            for _macro, _p_name in _route_kvpatterns:
-                if _p_name not in config.registry.route_7["kvpattern"]:
-                    raise ConfigurationError("missing kvpattern `%s`" % _p_name)
-                _p_value = config.registry.route_7["kvpattern"][_p_name]
-                _pattern_latest = pattern  # stash for logging
-                pattern = pattern.replace(_macro, "%s:%s" % (_p_name, _p_value))
-                log.debug("  updating %s > %s", _pattern_latest, pattern)  # updating
-
-            if _pattern_og != pattern:
-                log.debug("     final %s > %s", _pattern_og, pattern)  # updating
-    except:  # noqa: E722
-        raise
-    # add the json route first, so the `.json` extension
-    # is not consumed by greedy patterns
-    if jsonify:
-        j_name = "%s|json" % name
-        j_pattern = "%s.json" % pattern
-        config.add_route(j_name, pattern=j_pattern, **kwargs)
     if paginate:
+        paginated_name = "%s-paginated" % name
+        paginated_pattern = r"%s/{page:\d+}" % expanded
         if jsonify:
-            jp_name = "%s-paginated|json" % name
-            jp_pattern = r"%s/{page:\d+}.json" % pattern
-            config.add_route(jp_name, pattern=jp_pattern, **kwargs)
-        p_name = "%s-paginated" % name
-        p_pattern = r"%s/{page:\d+}" % pattern
-        config.add_route(p_name, pattern=p_pattern, **kwargs)
-    config.add_route(name, pattern=pattern, **kwargs)
+            config.add_route(
+                "%s|json" % paginated_name, pattern="%s.json" % paginated_pattern, **kwargs
+            )
+    if jsonify:
+        config.add_route("%s|json" % name, pattern="%s.json" % expanded, **kwargs)
+    if paginate:
+        config.add_route(paginated_name, pattern=paginated_pattern, **kwargs)
+    config.add_route(name, pattern=expanded, **kwargs)
 
 
 def includeme(config: "Configurator") -> None:

@@ -95,6 +95,7 @@ class PyramidTestApp(unittest.TestCase):
 
         res = self.testapp.get("/items/1", status=200)
         self.assertEqual(res.json["route_name"], "items-paginated")
+        self.assertEqual(res.json["matchdict"], {"page": "1"})
         self.assertFalse(res.json["jsonify"])
 
     def test_items_api(self):
@@ -108,8 +109,29 @@ class PyramidTestApp(unittest.TestCase):
 
         res = self.testapp.get("/items/api/1", status=200)
         self.assertEqual(res.json["route_name"], "items_api-paginated")
+        self.assertEqual(res.json["matchdict"], {"page": "1"})
         self.assertFalse(res.json["jsonify"])
 
         res = self.testapp.get("/items/api/1.json", status=200)
         self.assertEqual(res.json["route_name"], "items_api-paginated|json")
+        self.assertEqual(res.json["matchdict"], {"page": "1"})
         self.assertTrue(res.json["jsonify"])
+
+    def test_non_numeric_pages_do_not_match(self) -> None:
+        """Reject URLs outside the registered pagination pattern."""
+        for path in ("/items/next", "/items/api/next", "/items/api/next.json"):
+            with self.subTest(path=path):
+                self.testapp.get(path, status=404)
+
+    def test_greedy_filename_route_variants(self) -> None:
+        """Dispatch each URL to the most specific generated route."""
+        for suffix, route_name, matchdict in (
+            ("", "files", {"filename": "docs/manual"}),
+            (".json", "files|json", {"filename": "docs/manual"}),
+            ("/2", "files-paginated", {"filename": "docs/manual", "page": "2"}),
+            ("/2.json", "files-paginated|json", {"filename": "docs/manual", "page": "2"}),
+        ):
+            with self.subTest(suffix=suffix):
+                response = self.testapp.get("/files/docs/manual" + suffix, status=200)
+                self.assertEqual(response.json["route_name"], route_name)
+                self.assertEqual(response.json["matchdict"], matchdict)
